@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id String @id @default(uuid())
+
+  email String @unique
+  name  String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  profiles   Profile[]
+  authTokens AuthToken?
+
+  @@map("accounts")
+}
+
+model Profile {
+  id String @id @default(uuid())
+
+  name   String
+  avatar String
+
+  is_for_kids Boolean @default(false)
+
+  account    Account       @relation(fields: [account_id], references: [id])
+  account_id String
+  history    UserHistory[]
+  watchList  WatchList[]
+
+  @@map("profiles")
+}
+
+model AuthToken {
+  id String @id @default(uuid())
+
+  token String @default(uuid())
+  code  String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  account    Account @relation(fields: [account_id], references: [id])
+  account_id String  @unique
+
+  @@unique([token, code])
+  @@map("auth_tokens")
+}
+
+model Producer {
+  id String @id @default(uuid())
+
+  name    String
+  summary String
+  picture String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  titles Title[]
+
+  @@map("producer")
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String
+
+  titles TitleCategory[]
+
+  @@map("categories")
+}
+
+model TitleCategory {
+  id String @id @default(uuid())
+
+  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  title    Title    @relation(fields: [title_id], references: [id], onDelete: Cascade)
+
+  category_id String
+  title_id    String
+
+  @@map("title_category")
+}
+
+model Title {
+  id String @id @default(uuid())
+
+  title   String
+  summary String
+
+  poster String
+  banner String
+
+  producer    Producer @relation(fields: [producer_id], references: [id])
+  producer_id String
+
+  type TitleType
+
+  released_at DateTime
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  categories  TitleCategory[]
+  contents    Content[]
+  onHistory   UserHistory[]
+  onWatchList WatchList[]
+
+  @@map("titles")
+}
+
+enum TitleType {
+  MOVIE
+  TV
+}
+
+model Content {
+  id String @id @default(uuid())
+
+  name      String
+  summary   String
+  stream    String
+  thumbnail String
+  type      ContentType
+
+  title    Title  @relation(fields: [title_id], references: [id])
+  title_id String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("contents")
+}
+
+enum ContentType {
+  MOVIE
+  EPISODE
+}
+
+model UserHistory {
+  id String @id @default(uuid())
+
+  profile    Profile @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  profile_id String
+
+  title    Title  @relation(fields: [title_id], references: [id], onDelete: Cascade)
+  title_id String
+
+  watched_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([profile_id, title_id])
+  @@map("user_histories")
+}
+
+model WatchList {
+  id String @id @default(uuid())
+
+  profile    Profile @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  profile_id String
+
+  title    Title  @relation(fields: [title_id], references: [id], onDelete: Cascade)
+  title_id String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([profile_id, title_id])
+  @@map("watch_list")
+}
+
+model ProfileAvatar {
+  id   String @id @default(uuid())
+  path String
+
+  @@map("profile_avatars")
+}

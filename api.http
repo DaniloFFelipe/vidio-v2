@@ -1,0 +1,130 @@
+@baseUrl = http://localhost:3000
+@token = {{authentication.response.body.token}}
+@codeToken = {{request_code.response.body.token}}
+
+POST {{baseUrl}}/accounts
+Content-Type: application/json
+
+{
+  "email": "danilo@acme.com",
+  "name": "Danilo"
+}
+
+###
+
+# @name request_code
+POST {{baseUrl}}/sessions/request
+Content-Type: application/json
+
+{
+  "email": "danilo@acme.com"
+}
+
+###
+
+# @name authentication
+POST {{baseUrl}}/sessions/auth
+Content-Type: application/json
+
+{
+  "code": "111111",
+  "token": "{{codeToken}}"
+}
+
+###
+
+# @name get_avatars
+GET {{baseUrl}}/utils/avatars
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+# @name create_profile
+POST {{baseUrl}}/profiles
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "avatar": "/images/avatar2.png",
+  "name": "Danilo"
+}
+
+###
+@profileId = 6d6eabaf-4ef8-4663-9650-4a6605d32981
+###
+
+# @name all_producers
+GET {{baseUrl}}/producers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+# @name search_titles
+GET {{baseUrl}}/titles/search?query=Three&pageIndex=0&perPage=10
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+
+# @name title_content
+GET {{baseUrl}}/titles/be82ad25-f64b-457d-9e7e-f9246d0f6448/contents
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+# @name featured_titles
+GET {{baseUrl}}/discovery
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+# @name featured_title
+GET {{baseUrl}}/discovery/featured
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+# @name featured_category
+GET {{baseUrl}}/discovery/featured/category
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+
+# @name history
+GET {{baseUrl}}/titles/history
+Content-Type: application/json
+Authorization: Bearer {{token}}
+x-active-profile: {{profileId}}
+
+###
+
+# @name watch-list
+GET {{baseUrl}}/titles/watch-list
+Content-Type: application/json
+Authorization: Bearer {{token}}
+x-active-profile: {{profileId}}
+
+###
+
+# @name history
+PATCH {{baseUrl}}/histories/e189394c-e988-4502-a0c4-d9c4fb357b20/touch
+Content-Type: application/json
+Authorization: Bearer {{token}}
+x-active-profile: {{profileId}}
+
+###
+
+# @name watchList
+PATCH {{baseUrl}}/watch-lists/e189394c-e988-4502-a0c4-d9c4fb357b20/touch
+Content-Type: application/json
+Authorization: Bearer {{token}}
+x-active-profile: {{profileId}}
+
+###
